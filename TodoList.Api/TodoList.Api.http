@@ -1,0 +1,197 @@
+@TodoList_Api_HostAddress = https://localhost:7183
+
+### Kategorileri getir
+GET {{TodoList_Api_HostAddress}}/api/categories
+Accept: application/json
+
+### Yeni kategori oluştur
+POST {{TodoList_Api_HostAddress}}/api/categories
+Content-Type: application/json
+
+{
+  "name": "Staj",
+  "color": "blue"
+}
+
+### Yeni Todo oluştur
+POST {{TodoList_Api_HostAddress}}/api/todos
+Content-Type: application/json
+
+{
+  "title": "Staj projesini geliştir",
+  "description": "Todo List backend kısmına devam et",
+  "priority": 3,
+  "dueDate": "2026-08-15T00:00:00",
+  "categoryId": 1
+}
+### Todo'ları getir
+GET {{TodoList_Api_HostAddress}}/api/todos
+Accept: application/json
+
+
+
+### Todo'yu tamamlandı yap
+PATCH {{TodoList_Api_HostAddress}}/api/todos/1/status
+Content-Type: application/json
+
+{
+  "isCompleted": true
+}
+
+### Todo güncelle
+PUT {{TodoList_Api_HostAddress}}/api/todos/1
+Content-Type: application/json
+
+{
+  "title": "Staj projesini tamamla",
+  "description": "Backend testlerini bitir",
+  "priority": 4,
+  "dueDate": "2026-08-20T00:00:00",
+  "categoryId": 1
+}
+
+### Todo sil
+DELETE {{TodoList_Api_HostAddress}}/api/todos/1
+
+### Todo 1
+POST {{TodoList_Api_HostAddress}}/api/todos
+Content-Type: application/json
+
+{
+  "title": "Staj raporunu hazırla",
+  "description": "Staj raporunun backend bölümünü yaz",
+  "priority": 3,
+  "dueDate": "2026-08-12T00:00:00",
+  "categoryId": 1
+}
+
+### Todo 2
+POST {{TodoList_Api_HostAddress}}/api/todos
+Content-Type: application/json
+
+{
+  "title": "SQL tekrar yap",
+  "description": "JOIN ve GROUP BY konularını çalış",
+  "priority": 2,
+  "dueDate": "2026-08-20T00:00:00",
+  "categoryId": 1
+}
+
+### Todo 3
+POST {{TodoList_Api_HostAddress}}/api/todos
+Content-Type: application/json
+
+{
+  "title": "Projeyi kontrol et",
+  "description": "Eksik endpointleri kontrol et",
+  "priority": 4,
+  "dueDate": "2026-08-10T00:00:00",
+  "categoryId": null
+}
+
+### Sadece Critical Todo'ları getir
+GET {{TodoList_Api_HostAddress}}/api/todos?priority=4
+Accept: application/json
+
+### Başlığa göre ara
+GET {{TodoList_Api_HostAddress}}/api/todos?search=SQL
+Accept: application/json
+
+### Tamamlanmamış Todo'ları getir
+GET {{TodoList_Api_HostAddress}}/api/todos?status=active
+Accept: application/json
+
+### Tamamlanmış Todo'ları getir
+GET {{TodoList_Api_HostAddress}}/api/todos?status=completed
+Accept: application/json
+
+### Tarihi geçmiş Todo'ları getir
+GET {{TodoList_Api_HostAddress}}/api/todos?status=overdue
+Accept: application/json
+
+### Birden fazla filtre
+GET {{TodoList_Api_HostAddress}}/api/todos?priority=3&categoryId=1&status=active
+Accept: application/json
+
+### Teslim tarihine göre sırala
+GET {{TodoList_Api_HostAddress}}/api/todos?sortBy=dueDate&sortDirection=asc
+Accept: application/json
+
+### Sayfalama - 1. sayfa
+GET {{TodoList_Api_HostAddress}}/api/todos?pageNumber=1&pageSize=2
+Accept: application/json
+
+### Sayfalama - 2. sayfa
+GET {{TodoList_Api_HostAddress}}/api/todos?pageNumber=2&pageSize=2
+Accept: application/json
+
+### Hatalı Todo - Validation testi
+POST {{TodoList_Api_HostAddress}}/api/todos
+Content-Type: application/json
+
+{
+  "title": "",
+  "description": "Bu kayıt oluşmamalı",
+  "priority": 3,
+  "dueDate": "2026-08-20T00:00:00",
+  "categoryId": 1
+}
+### Hatalı kategori - Validation testi
+POST {{TodoList_Api_HostAddress}}/api/categories
+Content-Type: application/json
+
+{
+  "name": "",
+  "color": "blue"
+}
+### Olmayan kategori - Exception testi
+POST {{TodoList_Api_HostAddress}}/api/todos
+Content-Type: application/json
+
+{
+  "title": "Exception testi",
+  "description": "Olmayan kategori gönderiyoruz",
+  "priority": 3,
+  "dueDate": "2026-08-20T00:00:00",
+  "categoryId": 999999
+}
+### Create sonrası Category kontrolü
+POST {{TodoList_Api_HostAddress}}/api/todos
+Content-Type: application/json
+
+{
+  "title": "Kategori bağlantı testi",
+  "description": "POST cevabında kategori bilgilerini kontrol ediyoruz",
+  "priority": 2,
+  "dueDate": "2026-08-20T00:00:00",
+  "categoryId": 1
+}
+
+### Olmayan Todo testi
+GET {{TodoList_Api_HostAddress}}/api/todos/999999
+Accept: application/json
+
+### Test kategorisi oluştur
+POST {{TodoList_Api_HostAddress}}/api/categories
+Content-Type: application/json
+
+{
+  "name": "Test Kategorisi",
+  "color": "red"
+}
+
+### Test kategorisini güncelle
+PUT {{TodoList_Api_HostAddress}}/api/categories/2
+Content-Type: application/json
+
+{
+  "name": "Güncellenmiş Kategori",
+  "color": "green"
+}
+
+### Test kategorisini sil
+DELETE {{TodoList_Api_HostAddress}}/api/categories/2
+
+### Kategorileri tekrar getir
+GET {{TodoList_Api_HostAddress}}/api/categories
+Accept: application/json
