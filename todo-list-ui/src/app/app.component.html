@@ -1,0 +1,978 @@
+<p-toast></p-toast>
+
+<p-confirmDialog></p-confirmDialog>
+
+<!-- Görev kartlarındaki üç nokta işlem menüsü -->
+<p-menu
+  #todoMenu
+  [model]="todoMenuItems"
+  [popup]="true"
+  appendTo="body">
+</p-menu>
+
+
+<div class="p-4">
+
+  <!-- ========================= -->
+  <!-- ÜST BÖLÜM -->
+  <!-- ========================= -->
+
+  <div
+    class="flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+
+    <div>
+
+      <h1 class="m-0">
+        Todo List
+      </h1>
+
+      <p>
+        Görevlerini kolayca yönet.
+      </p>
+
+    </div>
+
+
+    <div class="flex flex-wrap gap-2">
+
+      <!-- KATEGORİ YÖNETİMİ -->
+      <p-button
+        label="Kategori Yönetimi"
+        icon="pi pi-tags"
+        severity="secondary"
+        (onClick)="openCategoryManager()">
+      </p-button>
+
+
+      <!-- YENİ TODO -->
+      <p-button
+        label="Yeni Görev Ekle"
+        icon="pi pi-plus"
+        (onClick)="openTodoDialog()">
+      </p-button>
+
+    </div>
+
+  </div>
+
+
+  <!-- ========================= -->
+  <!-- SAYAÇLAR -->
+  <!-- ========================= -->
+
+  <div class="grid">
+
+    <div class="col-12 md:col-4">
+
+      <div
+        class="surface-card p-3 border-round shadow-1">
+
+        <h3>
+          Toplam Görev
+        </h3>
+
+        <strong>
+          {{ allTodoCount }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <div class="col-12 md:col-4">
+
+      <div
+        class="surface-card p-3 border-round shadow-1">
+
+        <h3>
+          Aktif Görev
+        </h3>
+
+        <strong>
+          {{ activeCount }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <div class="col-12 md:col-4">
+
+      <div
+        class="surface-card p-3 border-round shadow-1">
+
+        <h3>
+          Tamamlanan
+        </h3>
+
+        <strong>
+          {{ completedCount }}
+        </strong>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ========================= -->
+  <!-- TAMAMLANMA ORANI -->
+  <!-- ========================= -->
+
+  <div
+    class="surface-card p-3 border-round shadow-1 mt-3">
+
+    <div
+      class="flex justify-content-between align-items-center mb-2">
+
+      <strong>
+        Tamamlanma Oranı
+      </strong>
+
+      <span>
+        {{ completedCount }}
+        /
+        {{ allTodoCount }}
+      </span>
+
+    </div>
+
+
+    <p-progressbar
+      [value]="completionRate">
+    </p-progressbar>
+
+  </div>
+
+
+  <!-- ========================= -->
+  <!-- FİLTRELER -->
+  <!-- ========================= -->
+
+  <div
+    class="surface-card p-3 border-round shadow-1 mt-4">
+
+    <h2 class="mt-0">
+      Filtreler
+    </h2>
+
+
+    <div class="grid">
+
+
+      <!-- ARAMA -->
+      <div class="col-12 md:col-4">
+
+        <label class="block mb-2">
+          Ara
+        </label>
+
+
+        <input
+          type="text"
+          pInputText
+          [(ngModel)]="searchText"
+          placeholder="Başlık veya açıklama ara"
+          class="w-full">
+
+      </div>
+
+
+      <!-- DURUM -->
+      <div class="col-12 md:col-4">
+
+        <label class="block mb-2">
+          Durum
+        </label>
+
+
+        <p-select
+          [options]="statusOptions"
+          optionLabel="label"
+          optionValue="value"
+          [(ngModel)]="selectedStatus"
+          placeholder="Tüm durumlar"
+          [showClear]="true"
+          styleClass="w-full">
+        </p-select>
+
+      </div>
+
+
+      <!-- ÖNCELİK -->
+      <div class="col-12 md:col-4">
+
+        <label class="block mb-2">
+          Öncelik
+        </label>
+
+
+        <p-select
+          [options]="priorityOptions"
+          optionLabel="label"
+          optionValue="value"
+          [(ngModel)]="selectedPriority"
+          placeholder="Tüm öncelikler"
+          [showClear]="true"
+          styleClass="w-full">
+        </p-select>
+
+      </div>
+
+
+      <!-- KATEGORİ -->
+      <div class="col-12 md:col-4">
+
+        <label class="block mb-2">
+          Kategori
+        </label>
+
+
+        <p-select
+          [options]="categoryFilterOptions"
+          optionLabel="label"
+          optionValue="value"
+          [(ngModel)]="selectedCategoryId"
+          placeholder="Tüm kategoriler"
+          [showClear]="true"
+          styleClass="w-full">
+        </p-select>
+
+      </div>
+
+
+      <!-- SIRALAMA -->
+      <div class="col-12 md:col-4">
+
+        <label class="block mb-2">
+          Sırala
+        </label>
+
+
+        <p-select
+          [options]="sortByOptions"
+          optionLabel="label"
+          optionValue="value"
+          [(ngModel)]="selectedSortBy"
+          styleClass="w-full">
+        </p-select>
+
+      </div>
+
+
+      <!-- SIRALAMA YÖNÜ -->
+      <div class="col-12 md:col-4">
+
+        <label class="block mb-2">
+          Sıralama Yönü
+        </label>
+
+
+        <p-select
+          [options]="sortDirectionOptions"
+          optionLabel="label"
+          optionValue="value"
+          [(ngModel)]="selectedSortDirection"
+          styleClass="w-full">
+        </p-select>
+
+      </div>
+
+    </div>
+
+
+    <!-- FİLTRE BUTONLARI -->
+    <div
+      class="flex justify-content-end flex-wrap gap-2 mt-3">
+
+      <p-button
+        label="Temizle"
+        icon="pi pi-filter-slash"
+        severity="secondary"
+        (onClick)="clearFilters()">
+      </p-button>
+
+
+      <p-button
+        label="Filtrele"
+        icon="pi pi-search"
+        (onClick)="applyFilters()">
+      </p-button>
+
+    </div>
+
+  </div>
+
+
+  <!-- ========================= -->
+  <!-- GÖREVLER -->
+  <!-- ========================= -->
+
+  <div class="mt-4">
+
+    <h2>
+      Görevler
+    </h2>
+
+
+    <!-- LOADING -->
+    @if (isLoading) {
+
+      <p-progressbar
+        mode="indeterminate"
+        [style]="{ height: '6px' }">
+      </p-progressbar>
+
+    }
+
+
+    <!-- LİSTE -->
+    @if (!isLoading) {
+
+      @for (todo of todos; track todo.id) {
+
+        <p-card styleClass="mb-3">
+
+
+          <!-- CHECKBOX + BAŞLIK -->
+          <div
+            class="flex align-items-center gap-2 mb-3">
+
+            <p-checkbox
+              [ngModel]="todo.isCompleted"
+              [binary]="true"
+              (ngModelChange)="changeTodoStatus(todo, $event)"
+              [inputId]="'todo-' + todo.id">
+            </p-checkbox>
+
+
+            <label
+              [for]="'todo-' + todo.id">
+
+              <h3
+                class="m-0"
+                [style.textDecoration]="
+                  todo.isCompleted
+                    ? 'line-through'
+                    : 'none'
+                "
+                [style.opacity]="
+                  todo.isCompleted
+                    ? '0.6'
+                    : '1'
+                ">
+                {{ todo.title }}
+              </h3>
+
+            </label>
+
+          </div>
+
+
+          <!-- AÇIKLAMA -->
+          <p
+            [style.opacity]="
+              todo.isCompleted
+                ? '0.7'
+                : '1'
+            ">
+
+            {{
+              todo.description ||
+              'Açıklama yok'
+            }}
+
+          </p>
+
+
+          <div
+            class="flex justify-content-between align-items-center flex-wrap gap-3">
+
+
+            <!-- BİLGİLER -->
+            <div
+              class="flex flex-wrap align-items-center gap-3">
+
+
+              <!-- ÖNCELİK -->
+              <p-tag
+
+                [value]="
+                  todo.priority === 1 ? 'Düşük' :
+                  todo.priority === 2 ? 'Orta' :
+                  todo.priority === 3 ? 'Yüksek' :
+                  'Kritik'
+                "
+
+                [severity]="
+                  todo.priority === 1 ? 'success' :
+                  todo.priority === 2 ? 'info' :
+                  todo.priority === 3 ? 'warn' :
+                  'danger'
+                ">
+
+              </p-tag>
+
+
+              <!-- KATEGORİ -->
+              <span>
+
+                <strong>
+                  Kategori:
+                </strong>
+
+                {{
+                  todo.categoryName ||
+                  'Kategorisiz'
+                }}
+
+              </span>
+
+
+              <!-- SON TARİH -->
+              <span>
+
+                <strong>
+                  Son Tarih:
+                </strong>
+
+
+                @if (todo.dueDate) {
+
+                  {{
+                    todo.dueDate
+                      | date:'dd.MM.yyyy'
+                  }}
+
+                }
+
+                @else {
+
+                  Belirtilmedi
+
+                }
+
+              </span>
+
+
+              <!-- OLUŞTURULMA TARİHİ -->
+              <span>
+
+                <strong>
+                  Oluşturulma:
+                </strong>
+
+                {{
+                  todo.createdAt
+                    | date:'dd.MM.yyyy'
+                }}
+
+              </span>
+
+
+              <!-- DURUM -->
+              <p-tag
+
+                [value]="
+                  todo.isCompleted
+                    ? 'Tamamlandı'
+                    : 'Aktif'
+                "
+
+                [severity]="
+                  todo.isCompleted
+                    ? 'success'
+                    : 'info'
+                ">
+
+              </p-tag>
+
+            </div>
+
+
+            <!-- BUTONLAR -->
+            <div
+              class="flex flex-wrap gap-2">
+
+              <p-button
+                icon="pi pi-pencil"
+                label="Düzenle"
+                severity="secondary"
+                (onClick)="openEditDialog(todo)">
+              </p-button>
+
+
+              <p-button
+                icon="pi pi-trash"
+                label="Sil"
+                severity="danger"
+                (onClick)="confirmDelete(todo)">
+              </p-button>
+
+
+              <!-- İŞLEM MENÜSÜ -->
+              <p-button
+                icon="pi pi-ellipsis-v"
+                severity="secondary"
+                [rounded]="true"
+                [text]="true"
+                ariaLabel="İşlem menüsü"
+                (onClick)="openTodoMenu($event, todo, todoMenu)">
+              </p-button>
+
+            </div>
+
+          </div>
+
+        </p-card>
+
+      }
+
+
+      @empty {
+
+        <div
+          class="surface-card p-4 border-round text-center">
+
+          <i
+            class="pi pi-inbox"
+            style="font-size: 2rem">
+          </i>
+
+
+          <p>
+            Henüz bir görev bulunmuyor. İlk görevinizi oluşturarak başlayabilirsiniz.
+          </p>
+
+        </div>
+
+      }
+
+    }
+
+  </div>
+
+
+  <!-- ========================= -->
+  <!-- SAYFALAMA -->
+  <!-- ========================= -->
+
+  @if (
+    !isLoading &&
+    totalCount > 0
+  ) {
+
+    <div class="mt-4">
+
+      <p-paginator
+        [first]="first"
+        [rows]="pageSize"
+        [totalRecords]="totalCount"
+        [rowsPerPageOptions]="[5, 10, 20]"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="{first} - {last} / {totalRecords} görev"
+        (onPageChange)="onPageChange($event)">
+      </p-paginator>
+
+    </div>
+
+  }
+
+</div>
+
+
+<!-- ================================================= -->
+<!-- TODO EKLE / DÜZENLE DIALOG -->
+<!-- ================================================= -->
+
+<p-dialog
+
+  [header]="
+    isEditMode
+      ? 'Görevi Düzenle'
+      : 'Yeni Görev Oluştur'
+  "
+
+  [(visible)]="todoDialogVisible"
+
+  [modal]="true"
+
+  [style]="{
+    width: '550px',
+    maxWidth: '95vw'
+  }">
+
+
+  <form
+    [formGroup]="todoForm"
+    (ngSubmit)="saveTodo()">
+
+
+    <!-- BAŞLIK -->
+    <div class="mb-3">
+
+      <label
+        for="title"
+        class="block mb-2">
+
+        Görev Başlığı
+
+      </label>
+
+
+      <input
+        id="title"
+        type="text"
+        pInputText
+        formControlName="title"
+        class="w-full">
+
+
+      @if (
+        todoForm.controls.title.touched &&
+        todoForm.controls.title.invalid
+      ) {
+
+        <small class="text-red-500">
+
+          Başlık 3 ile 150 karakter
+          arasında olmalıdır.
+
+        </small>
+
+      }
+
+    </div>
+
+
+    <!-- AÇIKLAMA -->
+    <div class="mb-3">
+
+      <label
+        for="description"
+        class="block mb-2">
+
+        Açıklama
+
+      </label>
+
+
+      <textarea
+        id="description"
+        pTextarea
+        formControlName="description"
+        rows="4"
+        class="w-full">
+      </textarea>
+
+    </div>
+
+
+    <!-- ÖNCELİK -->
+    <div class="mb-3">
+
+      <label class="block mb-2">
+        Öncelik
+      </label>
+
+
+      <p-select
+        [options]="priorityOptions"
+        optionLabel="label"
+        optionValue="value"
+        formControlName="priority"
+        placeholder="Öncelik seç"
+        styleClass="w-full">
+      </p-select>
+
+    </div>
+
+
+    <!-- KATEGORİ -->
+    <div class="mb-3">
+
+      <label class="block mb-2">
+        Kategori
+      </label>
+
+
+      <p-select
+        [options]="categories"
+        optionLabel="name"
+        optionValue="id"
+        formControlName="categoryId"
+        placeholder="Kategori seç"
+        [showClear]="true"
+        styleClass="w-full">
+      </p-select>
+
+    </div>
+
+
+    <!-- TARİH -->
+    <div class="mb-3">
+
+      <label class="block mb-2">
+        Son Teslim Tarihi
+      </label>
+
+
+      <p-datepicker
+        formControlName="dueDate"
+        [minDate]="today"
+        [showIcon]="true"
+        dateFormat="dd.mm.yy"
+        styleClass="w-full">
+      </p-datepicker>
+
+    </div>
+
+
+    <!-- BUTONLAR -->
+    <div
+      class="flex justify-content-end flex-wrap gap-2 mt-4">
+
+      <p-button
+        type="button"
+        label="İptal"
+        severity="secondary"
+        [disabled]="isSaving"
+        (onClick)="todoDialogVisible = false">
+      </p-button>
+
+
+      <p-button
+        type="submit"
+        [label]="
+          isEditMode
+            ? 'Güncelle'
+            : 'Kaydet'
+        "
+        icon="pi pi-check"
+        [loading]="isSaving">
+      </p-button>
+
+    </div>
+
+  </form>
+
+</p-dialog>
+
+
+<!-- ================================================= -->
+<!-- KATEGORİ YÖNETİMİ DIALOG -->
+<!-- ================================================= -->
+
+<p-dialog
+
+  header="Kategori Yönetimi"
+
+  [(visible)]="categoryManagerVisible"
+
+  [modal]="true"
+
+  [style]="{
+    width: '650px',
+    maxWidth: '95vw'
+  }">
+
+
+  <!-- KATEGORİ FORM -->
+  <form
+    [formGroup]="categoryForm"
+    (ngSubmit)="saveCategory()">
+
+
+    <div class="grid">
+
+
+      <!-- KATEGORİ ADI -->
+      <div class="col-12 md:col-7">
+
+        <label
+          for="categoryName"
+          class="block mb-2">
+
+          Kategori Adı
+
+        </label>
+
+
+        <input
+          id="categoryName"
+          type="text"
+          pInputText
+          formControlName="name"
+          placeholder="Örn: Staj"
+          class="w-full">
+
+
+        @if (
+          categoryForm.controls.name.touched &&
+          categoryForm.controls.name.invalid
+        ) {
+
+          <small class="text-red-500">
+
+            Kategori adı zorunludur ve
+            en fazla 100 karakter olabilir.
+
+          </small>
+
+        }
+
+      </div>
+
+
+      <!-- RENK -->
+      <div class="col-12 md:col-5">
+
+        <label
+          for="categoryColor"
+          class="block mb-2">
+
+          Renk
+
+        </label>
+
+
+        <input
+          id="categoryColor"
+          type="text"
+          pInputText
+          formControlName="color"
+          placeholder="#3B82F6"
+          class="w-full">
+
+      </div>
+
+    </div>
+
+
+    <!-- FORM BUTONLARI -->
+    <div
+      class="flex justify-content-end flex-wrap gap-2 mt-3">
+
+      @if (isCategoryEditMode) {
+
+        <p-button
+          type="button"
+          label="Vazgeç"
+          severity="secondary"
+          (onClick)="resetCategoryForm()">
+        </p-button>
+
+      }
+
+
+      <p-button
+        type="submit"
+        icon="pi pi-check"
+        [loading]="isCategorySaving"
+        [label]="
+          isCategoryEditMode
+            ? 'Kategoriyi Güncelle'
+            : 'Kategori Ekle'
+        ">
+      </p-button>
+
+    </div>
+
+  </form>
+
+
+  <hr class="my-4">
+
+
+  <!-- KATEGORİ LİSTESİ -->
+  <h3>
+    Mevcut Kategoriler
+  </h3>
+
+
+  @for (
+    category of categories;
+    track category.id
+  ) {
+
+    <div
+      class="flex justify-content-between align-items-center flex-wrap gap-3 surface-100 p-3 border-round mb-2">
+
+
+      <!-- KATEGORİ BİLGİSİ -->
+      <div
+        class="flex align-items-center gap-2">
+
+
+        <!-- RENK NOKTASI -->
+        <span
+          [style.backgroundColor]="
+            category.color || '#9ca3af'
+          "
+          style="
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: inline-block;
+          ">
+        </span>
+
+
+        <strong>
+          {{ category.name }}
+        </strong>
+
+
+        @if (category.color) {
+
+          <small>
+            {{ category.color }}
+          </small>
+
+        }
+
+      </div>
+
+
+      <!-- KATEGORİ BUTONLARI -->
+      <div class="flex gap-2">
+
+        <p-button
+          icon="pi pi-pencil"
+          label="Düzenle"
+          size="small"
+          severity="secondary"
+          (onClick)="editCategory(category)">
+        </p-button>
+
+
+        <p-button
+          icon="pi pi-trash"
+          label="Sil"
+          size="small"
+          severity="danger"
+          (onClick)="confirmDeleteCategory(category)">
+        </p-button>
+
+      </div>
+
+    </div>
+
+  }
+
+
+  @empty {
+
+    <div
+      class="surface-100 p-4 border-round text-center">
+
+      Henüz kategori bulunmuyor.
+
+    </div>
+
+  }
+
+</p-dialog>
